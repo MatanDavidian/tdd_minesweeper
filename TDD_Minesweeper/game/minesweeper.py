@@ -8,7 +8,6 @@ class Minesweeper():
         self.rows=rows
         self.columns=columns
         self.field=[]
-        #col=["+"]*columns
         for _ in range(rows):
             self.field.append(["+"]*columns)
     def layMine(self,row,column):
@@ -72,4 +71,4 @@ m1.createField(4, 5)
 m1.layMine(0, 0)
 m1.layMine(3, 4)
 m1.layMine(0, 4)
-m1.layMine(3, 0)
+m1.layMine(3, 2)
