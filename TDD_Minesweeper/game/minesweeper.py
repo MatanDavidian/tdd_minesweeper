@@ -5,7 +5,6 @@ Created on 31 Mar 2019
 '''
 from enum import Enum
 from queue import Queue
-
 class GameStatus(Enum):
     WIN =0
     LOST=1
@@ -28,7 +27,7 @@ class Minesweeper():
             self.field[y][x]=1
         elif type(self.field[y][x]) is int:
             self.field[y][x]+=1
-    def layMine(self,column,row):
+    def layMine(self,row,column):
         if self.field[row][column]!="*":
             self.mineNum+=1
             self.field[row][column]="*"
@@ -43,7 +42,7 @@ class Minesweeper():
                 self.layMinecicl(row,column-1)
             #update value south west
             if column>0 and self.rows-1>row:
-                self.layMinecicl(row-1,column-1)
+                self.layMinecicl(row+1,column-1)
             #update value south
             if self.rows-1>row:
                 self.layMinecicl(row+1,column)
@@ -65,8 +64,8 @@ class Minesweeper():
                         if self.field[r][c]=="*":
                             self.exposed[r][c]="1"
             elif self.field[row][column]=="+":
-                self.revalcells(row,column)
-            else:
+                self.revealcells(row,column)
+            elif self.exposed[row][column]=="0":
                 self.exposed[row][column]="1"
                 self.exlore+=1
             if self.exlore==self.rows*self.columns-self.mineNum:
@@ -75,7 +74,12 @@ class Minesweeper():
                     for c in range(self.columns):
                         self.exposed[r][c]="1"
     def status(self):
-        print( self.stat)
+        if self.stat==GameStatus.WIN:    
+            print("WIN")
+        elif self.stat==GameStatus.LOST:    
+            print("LOST")
+        elif self.stat==GameStatus.PLAYING:    
+            print("PLAYING")
     def printField(self):
         for r in range(self.rows):
             for c in range(self.columns):
@@ -84,7 +88,7 @@ class Minesweeper():
                 elif self.exposed[r][c]=="1":
                     print("{} ".format(self.field[r][c]), end="")
             print()
-        print()
+        #print()
     def revalcellscircl(self,q,y,x):
         if self.field[y][x]=="+":
             self.exposed[y][x]="1"
@@ -94,32 +98,46 @@ class Minesweeper():
         else:
             self.exposed[y][x]="1"
             self.exlore+=1
-    def revalcells(self,row,column):
+    def revealcells(self,row,column):
         q = Queue()
         self.exposed[row][column]="1"
         self.exlore+=1
         q.put(row)
         q.put(column)
         while not q.empty():
-            r=q.get()
-            c=q.get()
-            #update value North
+            r=q.get()#row number
+            c=q.get()#column number
+            #Reveal value North
             if r>0 and self.exposed[r-1][c]!="1":
                 self.revalcellscircl(q,r-1,c)
-            #update value West
+            #Reveal value North  West
+            if c>0 and r>0 and self.exposed[r-1][c-1]!="1":
+                self.revalcellscircl(q,r-1,c-1)
+            #Reveal value West
             if c>0 and self.exposed[r][c-1]!="1":
                 self.revalcellscircl(q,r,c-1)
-            #update value south
+            #Reveal value south west
+            if c>0 and self.rows-1>r and self.exposed[r+1][c-1]!="1":
+                self.revalcellscircl(q,r+1,c-1)
+            #Reveal value south
             if self.rows-1>r and self.exposed[r+1][c]!="1":
                 self.revalcellscircl(q,r+1,c)
-            #update value east
+             #update value south east
+            if self.rows-1>r and self.columns-1>c and self.exposed[r+1][c+1]!="1":
+                self.revalcellscircl(q,r+1,c+1)
+            #Reveal value east
             if self.columns-1>c and self.exposed[r][c+1]!="1":
                 self.revalcellscircl(q,r,c+1)
+             #update value north east
+            if r>0 and self.columns-1>c and self.exposed[r-1][c+1]!="1":
+                self.revalcellscircl(q,r-1,c+1)
+
+
 # game setup
 game = Minesweeper()
 game.createFeild(3,8)
 game.layMine(1, 1)
-game.layMine(0, 2)
+game.layMine(2, 0)
 
 # game play
 game.printField();
@@ -160,3 +178,4 @@ game.printField();
 
 game.status();
 "WIM"
+
